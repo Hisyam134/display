@@ -6,35 +6,47 @@
     <title>Web 2: Monitor Display QR</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        /* Mengikuti tema HP (Dark Mode / Light Mode otomatis) */
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #121212; color: #ffffff; }
+            .box { background-color: #1e1e1e; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+            /* Membalik warna QR Code menjadi putih jika di dark mode */
+            #qrcode img, #qrcode canvas {
+                filter: invert(1);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            body { background-color: #ffffff; color: #333333; }
+            .box { background-color: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        }
+
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
             margin-top: 50px; 
-            background-color: #ffffff; /* Mengubah background seluruh halaman menjadi putih */
-            color: #333333;            /* Warna teks utama (gelap agar kontras) */
+            transition: background-color 0.3s, color 0.3s;
         }
         .box { 
             max-width: 450px; 
             margin: 0 auto; 
             padding: 30px; 
             border-radius: 10px; 
-            background-color: #ffffff; /* Mengubah background kotak menjadi putih */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
         }
+        
         #kode-output { font-size: 3rem; font-weight: bold; margin: 10px 0; color: #007bff; letter-spacing: 3px; }
         .qrcode-container { margin: 20px 0; display: flex; justify-content: center; align-items: center; min-height: 150px; }
         
-        /* --- TRIK KHUSUS ADAPTASI TEMA HP --- */
+        /* --- MODIFIKASI QR CODE TRANSPARAN --- */
         #qrcode {
-            background-color: #ffffff !important; /* Paksa latar belakang QR tetap putih di tema apa pun */
-            padding: 20px !important;              /* Jarak aman (border putih) agar scanner tidak error */
-            border-radius: 8px !important;
+            background-color: transparent !important; /* Latar belakang kotak transparan */
+            padding: 10px !important;              
             display: inline-block !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
         }
-        #qrcode img {
-            background-color: #ffffff !important; /* Cegah gambar QR invert/berubah warna di dark mode */
-            color: #000000 !important;
+        #qrcode img, #qrcode canvas {
+            background-color: transparent !important; /* Latar belakang gambar QR transparan */
+            transition: filter 0.3s ease;
         }
     </style>
 </head>
@@ -51,16 +63,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, query, limitToLast, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // PENTING: Ganti dengan URL Firebase Anda
     const firebaseConfig = { databaseURL: "https://tiketcom-5d185-default-rtdb.asia-southeast1.firebasedatabase.app/" };
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
+    // Inisialisasi QR Code dengan background transparan (rgba 0,0,0,0)
     let qrcodeInstance = new QRCode(document.getElementById("qrcode"), { 
         width: 200, 
         height: 200,
-        colorDark : "#000000", // Pola QR wajib hitam
-        colorLight : "#ffffff" // Dasar QR wajib putih
+        colorDark : "#000000", // Default hitam, akan di-invert otomatis oleh CSS jika dark mode
+        colorLight : "rgba(0,0,0,0)" // Set dasar QR menjadi transparan penuh
     });
 
     const q = query(ref(database, 'sistem/riwayat_kode'), limitToLast(1));
