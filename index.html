@@ -3,11 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web 2: Monitor Display QR</title>
+    <title>Web 2: Monitor Display QR (Light Mode)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #ffffff; color: 333333; }
-        .box { max-width: 450px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* Mengubah background utama seluruh halaman menjadi PUTIH */
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin-top: 50px; 
+            background: #ffffff; 
+            color: #333333;
+        }
+        /* Mengubah kotak display menjadi putih bersih dengan border tipis */
+        .box { 
+            max-width: 450px; 
+            margin: 0 auto; 
+            background: #ffffff; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
         #kode-output { font-size: 3rem; font-weight: bold; margin: 10px 0; color: #007bff; letter-spacing: 3px; }
         .qrcode-container { margin: 20px 0; display: flex; justify-content: center; align-items: center; min-height: 150px; }
     </style>
@@ -25,13 +41,18 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, query, limitToLast, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const firebaseConfig = { databaseURL: "https://tiketcom-5d185-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+    // PENTING: Masukkan URL Firebase Anda di sini
+    const firebaseConfig = { databaseURL: "https://tiketcom-5d185-default-rtdb.asia-southeast1.firebasedatabase.app/ };
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    let qrcodeInstance = new QRCode(document.getElementById("qrcode"), { width: 180, height: 180 });
+    let qrcodeInstance = new QRCode(document.getElementById("qrcode"), { 
+        width: 200, 
+        height: 200,
+        colorDark : "#000000",
+        colorLight : "#ffffff" // Memastikan background QR code monitor tetap putih bersih
+    });
 
-    // Hanya ambil 1 data terakhir yang masuk ke riwayat untuk ditampilkan di layar
     const q = query(ref(database, 'sistem/riwayat_kode'), limitToLast(1));
     onValue(q, (snapshot) => {
         if (snapshot.exists()) {
